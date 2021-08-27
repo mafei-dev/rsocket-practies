@@ -6,6 +6,7 @@ import io.rsocket.core.RSocketConnector;
 import io.rsocket.transport.netty.client.TcpClientTransport;
 import io.rsocket.util.DefaultPayload;
 import org.junit.jupiter.api.BeforeAll;
+import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
 import reactor.core.publisher.Mono;
@@ -16,7 +17,7 @@ public class Lec01RSocketTest {
     private RSocket socket;
 
     @BeforeAll
-    public void setUp() throws Exception {
+    public void setUp() {
         socket = RSocketConnector.create().connect(TcpClientTransport.create("localhost", 6565)).block();
     }
 
@@ -30,5 +31,12 @@ public class Lec01RSocketTest {
         StepVerifier.create(voidMono).verifyComplete();
         StepVerifier.create(voidMono).verifyComplete();
         */
+    }
+
+    @RepeatedTest(5)
+    public void testManyTimesFireAndForget() {
+        Payload payload = DefaultPayload.create("hi Mafei");
+        Mono<Void> voidMono = socket.fireAndForget(payload);
+        StepVerifier.create(voidMono).verifyComplete();
     }
 }
