@@ -14,4 +14,15 @@ public class MathService implements RSocket {
         System.out.println("data = " + data);
         return Mono.empty();
     }
+
+    @Override
+    public Mono<Payload> requestResponse(Payload payload) {
+        return Mono.fromSupplier(() -> {
+            RequestBean data = ObjectUtil.toObject(payload, RequestBean.class);
+            ResponseBean responseBean = new ResponseBean(data.getInput(), (
+                    data.getInput() * data.getInput()
+            ));
+            return ObjectUtil.toPayload(responseBean);
+        });
+    }
 }

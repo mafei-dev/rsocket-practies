@@ -1,6 +1,7 @@
 package com.mafei.rsocket.practies;
 
 import com.mafei.rsocket.practies.bean.RequestBean;
+import com.mafei.rsocket.practies.bean.ResponseBean;
 import com.mafei.rsocket.practies.util.ObjectUtil;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
@@ -43,5 +44,19 @@ public class Lec01RSocketTest {
         Payload payload = DefaultPayload.create("hi Mafei");
         Mono<Void> voidMono = socket.fireAndForget(payload);
         StepVerifier.create(voidMono).verifyComplete();
+    }
+
+
+    @Test
+    public void testRequestResponse() {
+        RequestBean requestBean = new RequestBean(5);
+        Payload payload = ObjectUtil.toPayload(requestBean);
+        Mono<ResponseBean> responseBeanMono = socket
+                .requestResponse(payload)
+                .map(_payload -> ObjectUtil.toObject(_payload, ResponseBean.class))
+                .doOnNext(System.out::println);
+        StepVerifier.create(responseBeanMono)
+                .expectNextCount(1)
+                .verifyComplete();
     }
 }
