@@ -5,7 +5,10 @@ import com.mafei.rsocket.practies.bean.ResponseBean;
 import com.mafei.rsocket.practies.util.ObjectUtil;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+
+import java.time.Duration;
 
 public class MathService implements RSocket {
     @Override
@@ -24,5 +27,15 @@ public class MathService implements RSocket {
             ));
             return ObjectUtil.toPayload(responseBean);
         });
+    }
+
+    @Override
+    public Flux<Payload> requestStream(Payload payload) {
+        RequestBean requestBean = ObjectUtil.toObject(payload, RequestBean.class);
+        return Flux.range(1, 10).map(index -> (index * requestBean.getInput()))
+                .map(value -> new ResponseBean(requestBean.getInput(),value))
+                .delayElements(Duration.ofSeconds(2))
+                .doOnNext(System.out::println)
+                .map(ObjectUtil::toPayload);
     }
 }

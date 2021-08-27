@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.RepeatedTest;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestInstance;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
@@ -57,6 +58,20 @@ public class Lec01RSocketTest {
                 .doOnNext(System.out::println);
         StepVerifier.create(responseBeanMono)
                 .expectNextCount(1)
+                .verifyComplete();
+    }
+
+
+    @Test
+    public void testRequestStream() {
+        RequestBean requestBean = new RequestBean(5);
+        Payload payload = ObjectUtil.toPayload(requestBean);
+        Flux<ResponseBean> payloadFlux = socket.requestStream(payload)
+                .map(_payload -> ObjectUtil.toObject(_payload, ResponseBean.class))
+                .doOnNext(System.out::println);
+
+        StepVerifier.create(payloadFlux)
+                .expectNextCount(10)
                 .verifyComplete();
     }
 }
