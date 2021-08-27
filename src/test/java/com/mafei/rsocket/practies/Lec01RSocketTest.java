@@ -1,5 +1,7 @@
 package com.mafei.rsocket.practies;
 
+import com.mafei.rsocket.practies.bean.RequestBean;
+import com.mafei.rsocket.practies.util.ObjectUtil;
 import io.rsocket.Payload;
 import io.rsocket.RSocket;
 import io.rsocket.core.RSocketConnector;
@@ -23,7 +25,10 @@ public class Lec01RSocketTest {
 
     @Test
     public void testFireAndForget() {
-        Payload payload = DefaultPayload.create("hi Mafei");
+
+//        Payload payload = DefaultPayload.create("hi Mafei");
+        RequestBean requestBean = new RequestBean(5);
+        Payload payload = ObjectUtil.toPayload(requestBean);
         Mono<Void> voidMono = socket.fireAndForget(payload);
         StepVerifier.create(voidMono).verifyComplete();
 
